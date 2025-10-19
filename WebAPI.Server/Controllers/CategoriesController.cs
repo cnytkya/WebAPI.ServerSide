@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Server.Data;
 using WebAPI.Server.Model;
@@ -22,6 +21,18 @@ namespace WebAPI.Server.Controllers
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
             return await _context.Categories.ToListAsync();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Category>> CreateCategory(Category category)
+        {
+            //Gelen veriyi veritabanı context'ine ekle
+            _context.Categories.Add(category);
+            //Değişiklikleri veritabanına uygula
+            await _context.SaveChangesAsync();
+
+            //Başarılı cevaptan sonra ve oluşturulan kaynağın adresini döndür.
+            return CreatedAtAction("GetCategory", new { id = category.Id }, category);
         }
 
         [HttpGet("{id}")]
@@ -80,7 +91,7 @@ namespace WebAPI.Server.Controllers
         }
         private bool CategoryExists(int id)
         {
-            return _context.Categories.Any(c=>c.Id == id);
+            return _context.Categories.Any(c => c.Id == id);
         }
     }
 }
